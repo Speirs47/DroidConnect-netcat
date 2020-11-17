@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.shape.Line?>
+
+<AnchorPane prefHeight="485.0" prefWidth="708.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1">
+      <TextField fx:id="txtHost" layoutX="54.0" layoutY="9.0" prefHeight="28.0" prefWidth="163.0" promptText="localhost" />
+      <Label layoutX="14.0" layoutY="14.0" text="Host" />
+      <Label layoutX="223.0" layoutY="14.0" text="Port" />
+      <TextField fx:id="txtPort" layoutX="260.0" layoutY="9.0" prefHeight="28.0" prefWidth="60.0" promptText="9001" />
+      <TextArea fx:id="txtContent" layoutX="79.0" layoutY="43.0" prefHeight="200.0" prefWidth="242.0" wrapText="true" />
+      <Label layoutX="14.0" layoutY="48.0" text="Content" />
+      <Button fx:id="btnSend" layoutX="605.0" layoutY="250.0" mnemonicParsing="false" prefHeight="28.0" prefWidth="96.0" text="Send" AnchorPane.rightAnchor="7.0" AnchorPane.topAnchor="250.0" />
+      <TextArea fx:id="txtOutput" layoutX="9.0" layoutY="309.0" prefHeight="169.0" prefWidth="694.0" wrapText="true" AnchorPane.bottomAnchor="7.0" AnchorPane.leftAnchor="7.0" AnchorPane.rightAnchor="7.0" AnchorPane.topAnchor="288.0" />
+      <Line endX="-110.0" endY="200.0" layoutX="438.0" layoutY="38.5" startX="-110.0" startY="-23.0" strokeLineCap="ROUND" strokeWidth="0.5" AnchorPane.topAnchor="15.0" />
+      <Label layoutX="338.0" layoutY="14.0" text="Key" />
+      <TextField fx:id="txtKey" layoutX="445.0" layoutY="9.0" prefHeight="28.0" prefWidth="229.0" AnchorPane.leftAnchor="410.0" AnchorPane.rightAnchor="7.0" />
+      <Label layoutX="338.0" layoutY="48.0" text="Latest IV" />
+      <TextField fx:id="txtIV" editable="false" layoutX="445.0" layoutY="43.0" prefHeight="28.0" prefWidth="229.0" AnchorPane.leftAnchor="410.0" AnchorPane.rightAnchor="7.0" />
+      <TextArea fx:id="txtEncrypted" editable="false" layoutX="445.0" layoutY="79.0" prefHeight="164.0" prefWidth="242.0" wrapText="true" AnchorPane.leftAnchor="410.0" AnchorPane.rightAnchor="7.0" />
+      <Label layoutX="338.0" layoutY="83.0" prefHeight="37.0" prefWidth="71.0" text="Encrypted content" wrapText="true" />
+</AnchorPane>
