@@ -23,6 +23,8 @@ dependencies {
     testCompile group: 'junit', name: 'junit', version: '4.12'
 }
 
+mainClassName = 'io.fyko.droidconnect.Main'
+
 javafx {
     version = "14.0.1"
     modules = [ 'javafx.controls', 'javafx.fxml' ]

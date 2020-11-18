@@ -12,11 +12,18 @@ import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
+
+import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.NoSuchPaddingException;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 import java.io.*;
 import java.net.Socket;
+import java.security.InvalidAlgorithmParameterException;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.time.LocalDateTime;
 import java.util.Base64;
@@ -73,7 +80,7 @@ public class FrmNetCat extends Application {
             sr.nextBytes(initVector);
 
             StringBuilder hexIV = new StringBuilder();
-            for (byte b: initVector) {
+            for (byte b : initVector) {
                 String hex = Integer.toHexString(Byte.toUnsignedInt(b));
                 if (hex.length() == 1) hex = "0" + hex;
 
@@ -105,14 +112,26 @@ public class FrmNetCat extends Application {
             output("Connection successful");
 
             PrintWriter out = new PrintWriter(client.getOutputStream(), true);
-            out.println(getContent());
             output("Sending message...");
+            out.println(getContent());
 
             BufferedReader in = new BufferedReader(new InputStreamReader(client.getInputStream()));
-            output("Message received: " + in.readLine());
+            StringBuilder msgBuilder = new StringBuilder();
+            String line;
+            while ((line = in.readLine()) != null)
+                msgBuilder.append(line);
             client.close();
 
-        } catch (IOException e) {
+            String msg = msgBuilder.toString();
+            output("Message received: " + msg);
+
+            if (!msg.startsWith("{") && msg.length() > 0) {
+                String encrypted = msg.substring(32);
+                String iv = msg.substring(0, 32);
+                output("Decrypted message: " + decrypt(encrypted, iv));
+            }
+
+        } catch (Exception e) {
             output("Connection error: " + e.getLocalizedMessage());
             e.printStackTrace();
         }
@@ -139,6 +158,28 @@ public class FrmNetCat extends Application {
         String now = LocalDateTime.now().toString();
         txtOutput.insertText(0, now + " - " + text + "\n");
         txtOutput.getParent().layout();
+    }
+
+    private String decrypt(String msg, String iv) throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidAlgorithmParameterException, InvalidKeyException, BadPaddingException, IllegalBlockSizeException {
+        System.out.println(msg);
+        System.out.println(iv);
+
+        byte[] encryptedData = Base64.getDecoder().decode(msg.getBytes());
+        byte[] ivArray = new byte[iv.length() / 2];
+
+        for (int i = 0; i < iv.length(); i += 2) {
+            ivArray[i / 2] = (byte) ((Character.digit(iv.charAt(i), 16) << 4)
+                    + Character.digit(iv.charAt(i+1), 16));
+        }
+
+        Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5PADDING");
+        SecretKeySpec skeySpec = new SecretKeySpec(txtKey.getText().getBytes(), "AES");
+        IvParameterSpec ivSpec = new IvParameterSpec(ivArray);
+
+        cipher.init(Cipher.DECRYPT_MODE, skeySpec, ivSpec);
+        byte[] decrypted = cipher.doFinal(encryptedData);
+
+        return new String(decrypted);
     }
 
     @FXML private TextField txtHost;
