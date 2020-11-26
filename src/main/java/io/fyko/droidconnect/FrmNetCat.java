@@ -1,7 +1,9 @@
 package io.fyko.droidconnect;
 
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.beans.Observable;
+import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -107,7 +109,7 @@ public class FrmNetCat extends Application {
     }
 
     private void BtnSendAction(ActionEvent actionEvent) {
-        try {
+        /*try {
             Socket client = new Socket(getHost(), getPort());
             output("Connection successful");
 
@@ -134,7 +136,9 @@ public class FrmNetCat extends Application {
         } catch (Exception e) {
             output("Connection error: " + e.getLocalizedMessage());
             e.printStackTrace();
-        }
+        }*/
+
+        new Thread(new Connect()).start();
 
     }
 
@@ -190,5 +194,45 @@ public class FrmNetCat extends Application {
     @FXML private TextArea txtEncrypted;
     @FXML private TextArea txtOutput;
     @FXML private Button btnSend;
+
+    private class Connect extends Task<Boolean> {
+
+        @Override
+        protected Boolean call() {
+            try {
+                Socket client = new Socket(getHost(), getPort());
+                client.setSoTimeout(10000);
+                Platform.runLater(() -> output("Connection successful"));
+
+                PrintWriter out = new PrintWriter(client.getOutputStream(), true);
+                Platform.runLater(() -> output("Sending message..."));
+                out.println(getContent());
+
+                BufferedReader in = new BufferedReader(new InputStreamReader(client.getInputStream()));
+                StringBuilder msgBuilder = new StringBuilder();
+                String line;
+                while ((line = in.readLine()) != null)
+                    msgBuilder.append(line);
+                client.close();
+
+                String msg = msgBuilder.toString();
+                Platform.runLater(() -> output("Message received: " + msg));
+
+                if (!msg.startsWith("{") && msg.length() > 0) {
+                    String encrypted = msg.substring(32);
+                    String iv = msg.substring(0, 32);
+                    String decoded =  decrypt(encrypted, iv);
+                    Platform.runLater(() -> output("Decrypted message: " + decoded));
+                }
+
+            } catch (Exception e) {
+                Platform.runLater(() -> output("Connection error: " + e.getLocalizedMessage()));
+                e.printStackTrace();
+                return false;
+            }
+
+            return true;
+        }
+    }
 }
 
